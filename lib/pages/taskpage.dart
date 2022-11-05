@@ -6,13 +6,25 @@ import 'package:todoapp/database_helper.dart';
 import 'package:todoapp/models/task.dart';
 
 class TaskPage extends StatefulWidget {
-  const TaskPage({super.key});
+  final Task? task;
+  const TaskPage({required this.task});
 
   @override
   State<TaskPage> createState() => _TaskPageState();
 }
 
 class _TaskPageState extends State<TaskPage> {
+  String _taskTitle = "";
+
+  @override
+  void initState() {
+    if (widget.task != null) {
+	 _taskTitle = widget.task!.title!;
+      print(widget.task?.title);
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,13 +52,19 @@ class _TaskPageState extends State<TaskPage> {
                         child: TextField(
                           onSubmitted: (value) async {
                             if (value != '') {
-                              DatabaseHelper _dbHelper = DatabaseHelper();
+                              if (widget.task != null) {
+                                DatabaseHelper _dbHelper = DatabaseHelper();
 
-                              Task _newTask = Task(title: value);
-                              await _dbHelper.insertTask(_newTask);
-                              print('new task has been created');
+                                Task _newTask = Task(title: value);
+                                await _dbHelper.insertTask(_newTask);
+                                print('new task has been created');
+                              } else {
+                                print('update existing task');
+                              }
                             }
                           },
+
+						  controller: TextEditingController()..text = _taskTitle,
                           decoration: InputDecoration(
                             hintText: "Enter Task Title",
                             border: InputBorder.none,

@@ -3,9 +3,9 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class TaskCardWidget extends StatelessWidget {
-    final String title;
-    final String desc;
-  TaskCardWidget({ required this.title, required this.desc});
+  final String? title;
+  final String? desc;
+  TaskCardWidget({this.title, this.desc});
 
   @override
   Widget build(BuildContext context) {
@@ -23,20 +23,20 @@ class TaskCardWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            this.title,
-            style: TextStyle(
-              color: Color(0xFFFFFFFF),
-              fontSize: 22.0,
-              fontWeight: FontWeight.bold,
+            Text(
+              title ?? "UnNamed title",
+              style: TextStyle(
+                color: Color(0xFFFFFFFF),
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
           Padding(
             padding: EdgeInsets.only(
               top: 10.0,
             ),
             child: Text(
-               this.desc ?? "No Description",
+              this.desc ?? "No Description",
               style: TextStyle(
                 fontSize: 16.0,
                 color: Color(0xFF868290),
