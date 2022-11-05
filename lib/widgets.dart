@@ -5,7 +5,8 @@ import 'package:flutter/src/widgets/framework.dart';
 class TaskCardWidget extends StatelessWidget {
   final String? title;
   final String? desc;
-  TaskCardWidget({this.title, this.desc});
+  final int? status;
+  TaskCardWidget({this.title, this.desc, this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class TaskCardWidget extends StatelessWidget {
       ),
       margin: EdgeInsets.only(bottom: 20.0),
       decoration: BoxDecoration(
-        color: Color(0xFFFFE082),
+        color: status == 1 ?  Color(0xFFFEB139) :Color(0xFFFFE082),
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Column(
@@ -36,7 +37,7 @@ class TaskCardWidget extends StatelessWidget {
               top: 10.0,
             ),
             child: Text(
-              this.desc ?? "No Description",
+              this.desc==null ? "No Description" : (this.desc == "" ? "No Discription " : this.desc??"No Discription"),
               style: TextStyle(
                 fontSize: 16.0,
                 color: Color(0xFF868290),

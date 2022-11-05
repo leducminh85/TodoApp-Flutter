@@ -49,17 +49,20 @@ class _HomePageState extends State<HomePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => TaskPage(
-                                           task: snapshot.data?[index],
-                                        ),
+                                      task: snapshot.data?[index],
+                                    ),
                                   ),
-                                );
+                                ).then((value) {
+                                  setState(() {});
+                                });
                               },
                               child: TaskCardWidget(
                                 title: snapshot.data![index].title,
+                                desc: snapshot.data![index].description,
+                                status: snapshot.data![index].status,
                               ),
                             );
                           },
-
                         );
                       }),
                     ),
@@ -73,7 +76,8 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => TaskPage(task: null)),
+                      MaterialPageRoute(
+                          builder: (context) => TaskPage(task: null)),
                     ).then((value) {
                       setState(() {});
                     });
@@ -81,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                   child: Container(
                     child: Image.asset(
                       'assets/images/add.png',
-                      scale: 12,
+                      scale: 9,
                     ),
                   ),
                 ),
