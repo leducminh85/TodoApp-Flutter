@@ -131,41 +131,48 @@ class _TaskPageState extends State<TaskPage> {
                             ),
                           ),
                         ),
-                        InkWell(
-                          onTap: () async {
-                            
-                            setState(() {
-                              _taskNoti == 1 ? _taskNoti = 0 : _taskNoti = 1;
-                              if (_taskNoti == 1) {
-                                service.showScheduledNotification(
-                                    id: 0,
-                                    title: 'Todo',
-                                    body:
-                                        'Nhắc nhở! Sắp đến thời gian deadline!',
-                                    seconds: (_taskDeadline?.difference((DateTime.now())))!.inSeconds - 600);
-                              }
-                              _dbHelper.updateNotification(_taskID, _taskNoti);
-                            });
-                            Fluttertoast.showToast(
-                                msg: _taskNoti == 1
-                                    ? "Đã bật thông báo"
-                                    : "Đã tắt thông báo",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Color(0xFF868290),
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: _taskNoti == 0
-                                ? Image.asset('assets/images/bell_unactive.png',
-                                    scale: 20)
-                                : Image.asset('assets/images/bell.png',
-                                    scale: 20),
+                        Visibility(
+                          visible: contentVisible,
+                          child: InkWell(
+                            onTap: () async {
+                              setState(() {
+                                _taskNoti == 1 ? _taskNoti = 0 : _taskNoti = 1;
+                                if (_taskNoti == 1) {
+                                  service.showScheduledNotification(
+                                      id: 0,
+                                      title: 'Todo',
+                                      body:
+                                          'Nhắc nhở! Sắp đến thời gian deadline!',
+                                      seconds: (_taskDeadline?.difference(
+                                                  (DateTime.now())))!
+                                              .inSeconds -
+                                          600);
+                                }
+                                _dbHelper.updateNotification(
+                                    _taskID, _taskNoti);
+                              });
+                              Fluttertoast.showToast(
+                                  msg: _taskNoti == 1
+                                      ? "Đã bật thông báo"
+                                      : "Đã tắt thông báo",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Color(0xFF868290),
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: _taskNoti == 0
+                                  ? Image.asset(
+                                      'assets/images/bell_unactive.png',
+                                      scale: 20)
+                                  : Image.asset('assets/images/bell.png',
+                                      scale: 20),
+                            ),
                           ),
-                        ),
+                        )
                       ],
                     )),
                 Visibility(
@@ -240,15 +247,15 @@ class _TaskPageState extends State<TaskPage> {
                         print(_taskStatus);
                       }
                       Fluttertoast.showToast(
-                                msg: _taskStatus == 1
-                                    ? "Đã đánh dấu hoàn thành!"
-                                    : "Chế độ chỉnh sửa!",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Color(0xFF868290),
-                                textColor: Colors.white,
-                                fontSize: 16.0);
+                          msg: _taskStatus == 1
+                              ? "Đã đánh dấu hoàn thành!"
+                              : "Chế độ chỉnh sửa!",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Color(0xFF868290),
+                          textColor: Colors.white,
+                          fontSize: 16.0);
                     },
                     child: Container(
                       child: _taskStatus == 1
