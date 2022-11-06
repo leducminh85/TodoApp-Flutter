@@ -13,7 +13,7 @@ class DatabaseHelper {
       join(await getDatabasesPath(), 'todo2.db'),
       onCreate: (db, version) async {
         return db.execute(
-          'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, description TEXT, status INTEGER)',
+          'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, description TEXT, status INTEGER, deadline TEXT)',
         );
       },
       version: 1,
@@ -38,8 +38,8 @@ class DatabaseHelper {
           id: taskMap[index]['id'],
           title: taskMap[index]['title'],
           description: taskMap[index]['description'],
-          status: taskMap[index]['status']);
-
+          status: taskMap[index]['status'],
+          deadline: taskMap[index]['deadline']);
     });
   }
 
@@ -50,16 +50,22 @@ class DatabaseHelper {
 
   Future<void> updateDescriptionTask(int id, String description) async {
     Database _db = await database();
-    await _db.rawUpdate("UPDATE tasks SET description = '$description' WHERE id = '$id'");
+    await _db.rawUpdate(
+        "UPDATE tasks SET description = '$description' WHERE id = '$id'");
   }
 
-   Future<void> deleteTask(int id) async {
+  Future<void> deleteTask(int id) async {
     Database _db = await database();
     await _db.rawDelete("DELETE FROM tasks WHERE id = '$id'");
   }
 
-   Future<void> updateStatus(int id, int status) async {
+  Future<void> updateStatus(int id, int status) async {
     Database _db = await database();
     await _db.rawUpdate("UPDATE tasks SET status = '$status' WHERE id = '$id'");
+  }
+
+  Future<void> updateDeadline(int id, String deadline) async {
+    Database _db = await database();
+    await _db.rawUpdate("UPDATE tasks SET deadline = '$deadline' WHERE id = '$id'");
   }
 }

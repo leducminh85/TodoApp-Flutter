@@ -3,7 +3,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp/database_helper.dart';
 import 'package:todoapp/pages/taskpage.dart';
-import 'package:todoapp/widgets.dart';
+import 'package:todoapp/widget/taskCard.dart';
+
+enum SampleItem { getAllTasks, getTodayTasks, getUpcomingTasks }
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,6 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   DatabaseHelper _dbHelper = DatabaseHelper();
+
+  SampleItem? selectedMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +32,52 @@ class _HomePageState extends State<HomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(bottom: 32.0),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      scale: 8,
+                  Row(
+					children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        height: 100,
+                        margin: EdgeInsets.only(bottom: 32.0, left: 0),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          scale: 8,
+                        ),
+                      ),
                     ),
-                  ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 0),
+                        child: PopupMenuButton<SampleItem>(
+                          initialValue: selectedMenu,
+                          // Callback that sets the selected popup menu item.
+                          onSelected: (SampleItem item) {
+                            setState(() {
+                              selectedMenu = item;
+                            });
+							print(selectedMenu);
+
+                          },
+                          itemBuilder: (BuildContext context) =>
+                              <PopupMenuEntry<SampleItem>>[
+                            const PopupMenuItem<SampleItem>(
+                              value: SampleItem.getAllTasks,
+                              child: Text('All'),
+                            ),
+                            const PopupMenuItem<SampleItem>(
+                              value: SampleItem.getTodayTasks,
+                              child: Text('Today'),
+                            ),
+                            const PopupMenuItem<SampleItem>(
+                              value: SampleItem.getUpcomingTasks,
+                              child: Text('Upcoming'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ]),
                   Expanded(
                     child: FutureBuilder(
                       initialData: [],
@@ -56,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {});
                                 });
                               },
-                              child: TaskCardWidget(
+                              child:  TaskCardWidget(
                                 title: snapshot.data![index].title,
                                 desc: snapshot.data![index].description,
                                 status: snapshot.data![index].status,

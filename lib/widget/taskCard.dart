@@ -37,7 +37,7 @@ class TaskCardWidget extends StatelessWidget {
               top: 10.0,
             ),
             child: Text(
-              this.desc==null ? "No Description" : (this.desc == "" ? "No Discription " : this.desc??"No Discription"),
+              desc==null ? "No Description" : (desc == "" ? "No Discription " : desc??"No Discription"),
               style: TextStyle(
                 fontSize: 16.0,
                 color: Color(0xFF868290),

@@ -3,8 +3,9 @@ class Task {
   final String? title;
   final String? description;
   final int? status;
+  final String? deadline;
 
-  Task({this.id, this.title, this.description, this.status});
+  Task({this.id, this.title, this.description, this.status, this.deadline});
 
   Map<String, dynamic> toMap() {
     return {
@@ -12,6 +13,7 @@ class Task {
       'title': title,
       'description': description,
       'status': status,
+      'deadline': deadline
     };
   }
 }
