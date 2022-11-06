@@ -137,20 +137,19 @@ class _TaskPageState extends State<TaskPage> {
                             onTap: () async {
                               setState(() {
                                 _taskNoti == 1 ? _taskNoti = 0 : _taskNoti = 1;
-                                if (_taskNoti == 1) {
+                                
+                                _dbHelper.updateNotification(
+                                    _taskID, _taskNoti);
+                              });
+                              if (_taskNoti == 1) {
                                   service.showScheduledNotification(
                                       id: 0,
                                       title: 'Todo',
                                       body:
                                           'Nhắc nhở! Sắp đến thời gian deadline!',
-                                      seconds: (_taskDeadline?.difference(
-                                                  (DateTime.now())))!
-                                              .inSeconds -
-                                          600);
+                                      seconds: (_taskDeadline!.difference(DateTime.now()).inSeconds-600  < 0 ? 5 : _taskDeadline!.difference(DateTime.now()).inSeconds-600 ));
                                 }
-                                _dbHelper.updateNotification(
-                                    _taskID, _taskNoti);
-                              });
+                               print(_taskDeadline!.difference(DateTime.now()).inMinutes);
                               Fluttertoast.showToast(
                                   msg: _taskNoti == 1
                                       ? "Đã bật thông báo"
@@ -158,6 +157,7 @@ class _TaskPageState extends State<TaskPage> {
                                   toastLength: Toast.LENGTH_SHORT,
                                   gravity: ToastGravity.BOTTOM,
                                   timeInSecForIosWeb: 1,
+                                  
                                   backgroundColor: Color(0xFF868290),
                                   textColor: Colors.white,
                                   fontSize: 16.0);
