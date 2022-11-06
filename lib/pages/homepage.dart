@@ -1,6 +1,7 @@
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:todoapp/api/notification_api.dart';
 import 'package:todoapp/database_helper.dart';
 import 'package:todoapp/pages/taskpage.dart';
 import 'package:todoapp/widget/taskCard.dart';
@@ -22,6 +23,17 @@ class _HomePageState extends State<HomePage> {
   var listTaskCards = [];
   var listTaskCardsSearch = [];
   TextEditingController controller = new TextEditingController();
+
+  late final LocalNotificationService service;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    service = LocalNotificationService();
+    listenToNotification();
+    service.intialize();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +119,10 @@ class _HomePageState extends State<HomePage> {
                                       .difference(DateTime.parse(
                                           snapshot.data?[i].deadline))
                                       .inDays ==
-                                  0)
+                                  0) {
                                 listToday.add(snapshot.data?[i]);
-                              else if (DateTime.now()
+                             
+                              } else if (DateTime.now()
                                       .difference(DateTime.parse(
                                           snapshot.data?[i].deadline))
                                       .inDays <
@@ -153,9 +166,12 @@ class _HomePageState extends State<HomePage> {
                                       },
                                       child: TaskCardWidget(
                                         title: listTaskCardsSearch[index].title,
-                                        desc: listTaskCardsSearch[index].description,
-                                        status: listTaskCardsSearch[index].status,
-                                        deadline: listTaskCardsSearch[index].deadline,
+                                        desc: listTaskCardsSearch[index]
+                                            .description,
+                                        status:
+                                            listTaskCardsSearch[index].status,
+                                        deadline:
+                                            listTaskCardsSearch[index].deadline,
                                       ));
                                 },
                               )
@@ -192,7 +208,8 @@ class _HomePageState extends State<HomePage> {
                 bottom: 32.0,
                 right: 0.0,
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+					
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -200,6 +217,10 @@ class _HomePageState extends State<HomePage> {
                     ).then((value) {
                       setState(() {});
                     });
+                    // NotificationApi.showNotification(
+                    // 	title: 'aa',
+                    // 	body: 'bbbb',
+                    // );
                   },
                   child: Container(
                     child: Image.asset(
@@ -216,7 +237,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   onSearchTextChanged(String text) async {
     listTaskCardsSearch.clear();
     if (text.isEmpty) {
@@ -231,5 +251,14 @@ class _HomePageState extends State<HomePage> {
     });
 
     setState(() {});
+  }
+
+  void listenToNotification() =>
+      service.onNotificationClick.stream.listen(onNotificationListener);
+
+  void onNotificationListener(String? payload) {
+    if (payload != null && payload.isNotEmpty) print('payload $payload');
+
+    //Navigator.push(context, MaterialPageRoute(builder: ((context) => {})));
   }
 }

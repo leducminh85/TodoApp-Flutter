@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:todoapp/api/notification_api.dart';
 import 'package:todoapp/database_helper.dart';
 import 'package:todoapp/models/task.dart';
 import 'package:todoapp/widget/datetimePicker.dart';
@@ -9,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class TaskPage extends StatefulWidget {
   final Task? task;
+
   const TaskPage({required this.task});
 
   @override
@@ -16,11 +18,14 @@ class TaskPage extends StatefulWidget {
 }
 
 class _TaskPageState extends State<TaskPage> {
+  late final LocalNotificationService service;
+
   String _taskTitle = "";
   String _taskDesc = "";
   int _taskStatus = -1;
   DateTime? _taskDeadline;
   int _taskID = 0;
+  int _taskNoti = 0;
 
   late FocusNode _titleFocus;
   late FocusNode _descriptionFocus;
@@ -30,6 +35,9 @@ class _TaskPageState extends State<TaskPage> {
 
   @override
   void initState() {
+    service = LocalNotificationService();
+    listenToNotification();
+    service.intialize();
     if (widget.task != null) {
       _taskTitle = widget.task!.title!;
       //  _taskStatus = widget.task!.status!;
@@ -39,7 +47,7 @@ class _TaskPageState extends State<TaskPage> {
       if (widget.task!.status != null) _taskStatus = widget.task!.status!;
       if (widget.task!.deadline != null)
         _taskDeadline = DateTime.parse(widget.task!.deadline!);
-
+      if (widget.task!.noti != null) _taskNoti = widget.task!.noti!;
       contentVisible = true;
     }
 
@@ -91,6 +99,7 @@ class _TaskPageState extends State<TaskPage> {
                                   Task _newTask = Task(
                                     title: value,
                                     status: -1,
+                                    noti: 0,
                                   );
                                   _taskID =
                                       await _dbHelper.insertTask(_newTask);
@@ -120,6 +129,41 @@ class _TaskPageState extends State<TaskPage> {
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF211551),
                             ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            
+                            setState(() {
+                              _taskNoti == 1 ? _taskNoti = 0 : _taskNoti = 1;
+                              if (_taskNoti == 1) {
+                                service.showScheduledNotification(
+                                    id: 0,
+                                    title: 'Todo',
+                                    body:
+                                        'Nhắc nhở! Sắp đến thời gian deadline!',
+                                    seconds: (_taskDeadline?.difference((DateTime.now())))!.inSeconds - 600);
+                              }
+                              _dbHelper.updateNotification(_taskID, _taskNoti);
+                            });
+                            Fluttertoast.showToast(
+                                msg: _taskNoti == 1
+                                    ? "Đã bật thông báo"
+                                    : "Đã tắt thông báo",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Color(0xFF868290),
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: _taskNoti == 0
+                                ? Image.asset('assets/images/bell_unactive.png',
+                                    scale: 20)
+                                : Image.asset('assets/images/bell.png',
+                                    scale: 20),
                           ),
                         ),
                       ],
@@ -161,19 +205,17 @@ class _TaskPageState extends State<TaskPage> {
                   child: GestureDetector(
                     onTap: () async {
                       if (_taskID != 0) {
-                        
                         await _dbHelper.deleteTask(_taskID);
                         Navigator.pop(context);
-                        
                       }
                       Fluttertoast.showToast(
-                            msg: "Deleted task!",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Color(0xFF868290),
-                            textColor: Colors.white,
-                            fontSize: 16.0);
+                          msg: "Deleted task!",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Color(0xFF868290),
+                          textColor: Colors.white,
+                          fontSize: 16.0);
                     },
                     child: Container(
                       child: Image.asset(
@@ -197,6 +239,16 @@ class _TaskPageState extends State<TaskPage> {
                         await _dbHelper.updateStatus(_taskID, _taskStatus);
                         print(_taskStatus);
                       }
+                      Fluttertoast.showToast(
+                                msg: _taskStatus == 1
+                                    ? "Đã đánh dấu hoàn thành!"
+                                    : "Chế độ chỉnh sửa!",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Color(0xFF868290),
+                                textColor: Colors.white,
+                                fontSize: 16.0);
                     },
                     child: Container(
                       child: _taskStatus == 1
@@ -209,5 +261,14 @@ class _TaskPageState extends State<TaskPage> {
         ),
       ),
     );
+  }
+
+  void listenToNotification() =>
+      service.onNotificationClick.stream.listen(onNotificationListener);
+
+  void onNotificationListener(String? payload) {
+    if (payload != null && payload.isNotEmpty) print('payload $payload');
+
+    //Navigator.push(context, MaterialPageRoute(builder: ((context) => {})));
   }
 }

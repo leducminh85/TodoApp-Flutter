@@ -10,10 +10,10 @@ class DatabaseHelper {
     WidgetsFlutterBinding.ensureInitialized();
 
     return openDatabase(
-      join(await getDatabasesPath(), 'todo3.db'),
+      join(await getDatabasesPath(), 'todo4.db'),
       onCreate: (db, version) async {
         return db.execute(
-          'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, description TEXT, status INTEGER, deadline TEXT)',
+          'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, description TEXT, status INTEGER, deadline TEXT, noti INTEGER)',
         );
       },
       version: 1,
@@ -39,7 +39,8 @@ class DatabaseHelper {
           title: taskMap[index]['title'],
           description: taskMap[index]['description'],
           status: taskMap[index]['status'],
-          deadline: taskMap[index]['deadline']);
+          deadline: taskMap[index]['deadline'],
+          noti: taskMap[index]['noti']);
     });
   }
 
@@ -67,5 +68,10 @@ class DatabaseHelper {
   Future<void> updateDeadline(int id, String deadline) async {
     Database _db = await database();
     await _db.rawUpdate("UPDATE tasks SET deadline = '$deadline' WHERE id = '$id'");
+  }
+
+   Future<void> updateNotification(int id, int noti) async {
+    Database _db = await database();
+    await _db.rawUpdate("UPDATE tasks SET noti = '$noti' WHERE id = '$id'");
   }
 }
