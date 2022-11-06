@@ -17,7 +17,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DatabaseHelper _dbHelper = DatabaseHelper();
 
-  SampleItem? selectedMenu;
+  SampleItem selectedMenu = SampleItem.getAllTasks;
+  String searchText = '';
+  var listTaskCards = [];
+  var listTaskCardsSearch = [];
+  TextEditingController controller = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +36,12 @@ class _HomePageState extends State<HomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-					children: [
+                  Row(children: [
                     Align(
                       alignment: Alignment.topLeft,
                       child: Container(
                         height: 100,
-                        margin: EdgeInsets.only(bottom: 32.0, left: 0),
+                        margin: EdgeInsets.only(bottom: 10.0, left: 0),
                         child: Image.asset(
                           'assets/images/logo.png',
                           scale: 8,
@@ -56,8 +59,6 @@ class _HomePageState extends State<HomePage> {
                             setState(() {
                               selectedMenu = item;
                             });
-							print(selectedMenu);
-
                           },
                           itemBuilder: (BuildContext context) =>
                               <PopupMenuEntry<SampleItem>>[
@@ -78,35 +79,110 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ]),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      onChanged: onSearchTextChanged,
+                      controller: controller,
+                      decoration: InputDecoration(
+                          labelText: "Search",
+                          hintText: "Search",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25.0)))),
+                    ),
+                  ),
                   Expanded(
                     child: FutureBuilder(
                       initialData: [],
                       future: _dbHelper.getTaks(),
                       builder: ((context, snapshot) {
-                        return ListView.builder(
-                          itemCount: snapshot.data?.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TaskPage(
-                                      task: snapshot.data?[index],
-                                    ),
-                                  ),
-                                ).then((value) {
-                                  setState(() {});
-                                });
-                              },
-                              child:  TaskCardWidget(
-                                title: snapshot.data![index].title,
-                                desc: snapshot.data![index].description,
-                                status: snapshot.data![index].status,
-                              ),
-                            );
-                          },
-                        );
+                        var listToday = [];
+                        var listUpcoming = [];
+                        if (snapshot.data!.length != null) {
+                          for (var i = 0; i < snapshot.data!.length; i++)
+                            if (snapshot.data?[i].deadline != null) {
+                              if (DateTime.now()
+                                      .difference(DateTime.parse(
+                                          snapshot.data?[i].deadline))
+                                      .inDays ==
+                                  0)
+                                listToday.add(snapshot.data?[i]);
+                              else if (DateTime.now()
+                                      .difference(DateTime.parse(
+                                          snapshot.data?[i].deadline))
+                                      .inDays <
+                                  0) listUpcoming.add(snapshot.data?[i]);
+                            }
+                          switch (selectedMenu) {
+                            case SampleItem.getAllTasks:
+                              {
+                                listTaskCards = [...snapshot.data!];
+                                break;
+                              }
+                            case SampleItem.getTodayTasks:
+                              {
+                                listTaskCards = [...listToday];
+                                break;
+                              }
+                            case SampleItem.getUpcomingTasks:
+                              {
+                                listTaskCards = [...listUpcoming];
+                                break;
+                              }
+                          }
+                        }
+                        return listTaskCardsSearch.length != 0 ||
+                                controller.text.isNotEmpty
+                            ? ListView.builder(
+                                itemCount: listTaskCardsSearch.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => TaskPage(
+                                              task: listTaskCardsSearch[index],
+                                            ),
+                                          ),
+                                        ).then((value) {
+                                          setState(() {});
+                                        });
+                                      },
+                                      child: TaskCardWidget(
+                                        title: listTaskCardsSearch[index].title,
+                                        desc: listTaskCardsSearch[index].description,
+                                        status: listTaskCardsSearch[index].status,
+                                        deadline: listTaskCardsSearch[index].deadline,
+                                      ));
+                                },
+                              )
+                            : ListView.builder(
+                                itemCount: listTaskCards.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => TaskPage(
+                                              task: listTaskCards[index],
+                                            ),
+                                          ),
+                                        ).then((value) {
+                                          setState(() {});
+                                        });
+                                      },
+                                      child: TaskCardWidget(
+                                        title: listTaskCards[index].title,
+                                        desc: listTaskCards[index].description,
+                                        status: listTaskCards[index].status,
+                                        deadline: listTaskCards[index].deadline,
+                                      ));
+                                },
+                              );
                       }),
                     ),
                   ),
@@ -138,5 +214,22 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+
+  onSearchTextChanged(String text) async {
+    listTaskCardsSearch.clear();
+    if (text.isEmpty) {
+      setState(() {});
+      return;
+    }
+
+    listTaskCards.forEach((task) {
+      if ((task.title != null && task.title.contains(text)) ||
+          (task.description != null && task.description.contains(text)))
+        listTaskCardsSearch.add(task);
+    });
+
+    setState(() {});
   }
 }

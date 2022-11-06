@@ -10,7 +10,7 @@ class DatabaseHelper {
     WidgetsFlutterBinding.ensureInitialized();
 
     return openDatabase(
-      join(await getDatabasesPath(), 'todo2.db'),
+      join(await getDatabasesPath(), 'todo3.db'),
       onCreate: (db, version) async {
         return db.execute(
           'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, description TEXT, status INTEGER, deadline TEXT)',
